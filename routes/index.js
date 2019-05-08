@@ -49,15 +49,25 @@ router.get('/currentTrack', async (req, res) => {
 });
 
 router.get('/lyrics', async (req, res) => {
-  let track = req.query.track.toLowerCase().replace(/[^A-Za-z0-9]/g, '');
-  let artist = req.query.artist.toLowerCase().replace(/[^A-Za-z0-9]/g, '');
+  let track = req.query.track.toLowerCase().replace(/[^A-Za-z0-9]/g, '').split("feat")[0];
+  let artist = req.query.artist.toLowerCase() === "p!nk" ? "pink" : req.query.artist.toLowerCase().replace(/[^A-Za-z0-9]/g, '');
   artist = artist.substring(0, 3) === "the" ? artist.substring(3) : artist;
   const url = `http://azlyrics.com/lyrics/${ artist }/${ track }.html`;
-  let html = await axios.get(url).then(res => res.data);
-  const $ = cheerio.load(html); 
-  res.send({
-    lyrics: $.text()
-  });
+  console.log(url);
+  await axios.get(url)
+              .then(res => res.data)
+              .then(html => {
+                const $ = cheerio.load(html); 
+                res.send({
+                  lyrics: $.text().split("Search").slice(1).join("Search").split("Submit Corrections")[0]
+                });
+              })
+              .catch(err => {
+                res.send({
+                  lyrics: "Lyrics Not Found"
+                });
+              });
+  
 });
 
 module.exports = router;
