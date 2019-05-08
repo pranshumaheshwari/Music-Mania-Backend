@@ -30,8 +30,22 @@ router.get('/recentTracks', async (req, res) => {
         api_key: API_KEY,
         format: `json` 
       }
-    }).then(res => res.data);
+    }).then(res => res.data.recenttracks.track);
   res.send(response);
+});
+
+router.get('/currentTrack', async (req, res) => {
+  const method = `user.getrecenttracks`;
+  const user = req.query.user;
+  let response = await axios.get(URL, {
+      params: {
+        method,
+        user,
+        api_key: API_KEY,
+        format: `json` 
+      }
+    }).then(res => res.data.recenttracks.track[0]);
+  res.send(response["@attr"] && response["@attr"].nowplaying ? { ...response, nowplaying: true } : { nowplaying: false });
 });
 
 router.get('/lyrics', async (req, res) => {
