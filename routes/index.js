@@ -3,7 +3,7 @@ var axios = require('axios');
 var cheerio = require('cheerio');
 var router = express.Router();
 
-const URL =  `http://ws.audioscrobbler.com/2.0/`;
+const URL =  [`http://ws.audioscrobbler.com/2.0/`];
 const API_KEY = process.env.API_KEY;
 
 router.get('/userDetails', async (req, res) => {
@@ -49,10 +49,11 @@ router.get('/currentTrack', async (req, res) => {
 });
 
 router.get('/lyrics', async (req, res) => {
+  const TRACK = req.query.track;
   let track = req.query.track.toLowerCase().replace(/[^A-Za-z0-9]/g, '').split("feat")[0];
   let artist = req.query.artist.toLowerCase() === "p!nk" ? "pink" : req.query.artist.toLowerCase().replace(/[^A-Za-z0-9]/g, '');
   artist = artist.substring(0, 3) === "the" ? artist.substring(3) : artist;
-  const url = `http://azlyrics.com/lyrics/${ artist }/${ track }.html`;
+  let url = `http://azlyrics.com/lyrics/${ artist }/${ track }.html`;
   console.log(url);
   await axios.get(url)
               .then(res => res.data)
@@ -62,9 +63,26 @@ router.get('/lyrics', async (req, res) => {
                   lyrics: $.text().split("Search").slice(1).join("Search").split("Submit Corrections")[0]
                 });
               })
-              .catch(err => {
+              .catch(async err => {
+                // url = `https://api.genius.com/search?q=${ TRACK }`;
+                // await axios.get(url, {
+                //   headers: {
+                //     Authorization: `Bearer ${process.env.ACCESS_TOKEN}`
+                //   }
+                // })
+                // .then(res => res.data)
+                // .then(response => {
+                //   let id = response.response.hits[0].result.id;
+                //   url = `https://api.genius.com/`;
+                // });
+                const Lyricist = require('lyricist/node6');
+                const lyricist = new Lyricist(process.env.ACCESS_TOKEN);
+                let r = await lyricist.search(TRACK);
+                let id = r[0].id;
+                r = await lyricist.song(id, { fetchLyrics: true });
+                let lyrics = r.lyrics;
                 res.send({
-                  lyrics: "Lyrics Not Found"
+                  lyrics
                 });
               });
   
