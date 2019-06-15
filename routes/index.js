@@ -3,7 +3,7 @@ var axios = require('axios');
 var cheerio = require('cheerio');
 var router = express.Router();
 
-const URL =  [`http://ws.audioscrobbler.com/2.0/`];
+const URL =  `http://ws.audioscrobbler.com/2.0/`;
 const API_KEY = process.env.API_KEY;
 
 router.get('/userDetails', async (req, res) => {
@@ -63,18 +63,7 @@ router.get('/lyrics', async (req, res) => {
                   lyrics: $.text().split("Search").slice(1).join("Search").split("Submit Corrections")[0]
                 });
               })
-              .catch(async err => {
-                // url = `https://api.genius.com/search?q=${ TRACK }`;
-                // await axios.get(url, {
-                //   headers: {
-                //     Authorization: `Bearer ${process.env.ACCESS_TOKEN}`
-                //   }
-                // })
-                // .then(res => res.data)
-                // .then(response => {
-                //   let id = response.response.hits[0].result.id;
-                //   url = `https://api.genius.com/`;
-                // });
+              .catch(async _ => {
                 const Lyricist = require('lyricist/node6');
                 const lyricist = new Lyricist(process.env.ACCESS_TOKEN);
                 let r = await lyricist.search(TRACK);
