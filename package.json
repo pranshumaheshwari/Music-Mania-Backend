@@ -15,7 +15,7 @@
     "dotenv": "^8.0.0",
     "ejs": "~2.5.7",
     "express": "~4.16.0",
-    "http-errors": "~1.6.2",
+    "http-errors": "~1.7.3",
     "lyricist": "^2.2.2",
     "morgan": "~1.9.0"
   },
